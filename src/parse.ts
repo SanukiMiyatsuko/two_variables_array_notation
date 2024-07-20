@@ -7,6 +7,8 @@ export const headNameReplace = (headname: string): string => {
         case "亜":
             return "a";
         case "伊":
+            return "i";
+        case "胃":
             return "い";
         case "亞":
             return "A";
@@ -86,7 +88,7 @@ export class Scanner {
         const op4 = headNameReplace(op3);
         if (ch === undefined)
             throw Error(
-                `${this.pos + 1}文字目に${op1}または${op2}または${op3}または${op4}が期待されていましたが、これ以上文字がありません`,
+                `${this.pos + 1}文字目に、文字がありません`,
             );
         if (ch !== op1 && ch !== op2 && ch !== op3 && ch !== op4)
             throw Error(`${this.pos + 1}文字目に${op1}または${op2}または${op3}または${op4}が期待されていましたが、${ch}が見つかりました`);

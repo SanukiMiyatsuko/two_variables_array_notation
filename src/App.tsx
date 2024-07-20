@@ -118,6 +118,7 @@ function App() {
               <option value="〇">〇関数</option>
               <option value="亜">亜関数</option>
               <option value="伊">伊関数</option>
+              <option value="胃">胃関数</option>
               <option value="亞">亞関数</option>
               <option value="B">B関数</option>
               <option value="ψ">ブーフホルツのψ関数</option>

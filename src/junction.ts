@@ -1,12 +1,13 @@
 import { Zero_Function } from './code/code_a_Zero';
 import { Subspecies_Function } from './code/code_b_Subspecies';
 import { Italy_Function } from './code/code_c_Italy';
-import { Old_Subspecies_Function } from './code/code_d_OldSubspecies';
-import { B_Function } from './code/code_e_B';
-import { Buchholzs_Psi_Function } from './code/code_f_BuchholzsPsi';
-import { Goal_Function } from "./code/code_g_Goal";
-import { Side_Bamboo_Function } from './code/code_h_SideBamboo';
-import { Side_Mushroom_Function } from './code/code_i_SideMushroom';
+import { Stomach_Function } from './code/code_d_Stomach';
+import { Old_Subspecies_Function } from './code/code_f_OldSubspecies';
+import { B_Function } from './code/code_g_B';
+import { Buchholzs_Psi_Function } from './code/code_h_BuchholzsPsi';
+import { Goal_Function } from "./code/code_i_Goal";
+import { Side_Bamboo_Function } from './code/code_j_SideBamboo';
+import { Side_Mushroom_Function } from './code/code_k_SideMushroom';
 import { Options, T } from './intersection';
 
 export type strT = {
@@ -27,6 +28,8 @@ export function switchFunc(fnName: string): Hyouki {
             return new Subspecies_Function();
         case "伊":
             return new Italy_Function();
+        case "胃":
+            return new Stomach_Function();
         case "亞":
             return new Old_Subspecies_Function();
         case "B":
