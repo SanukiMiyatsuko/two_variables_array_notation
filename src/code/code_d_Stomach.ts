@@ -114,7 +114,7 @@ function fund(s: T, t: T): T {
         } else {
             const domd = dom(domb.arg);
             if (domd.type === "zero") {
-                if (less_than(t, domb)) {
+                if (less_than(s, domb)) {
                     const c = domb.sub;
                     if (equal(dom(t), ONE)) {
                         const p = fund(s, fund(t, Z));
