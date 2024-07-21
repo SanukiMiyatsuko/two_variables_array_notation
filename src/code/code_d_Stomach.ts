@@ -53,33 +53,6 @@ function dom(t: T): ZT | PT {
     }
 }
 
-// find(s, t)
-function find(s: T, t: T): T {
-    if (s.type === "zero") {
-        return Z;
-    } else if (s.type === "plus") {
-        const sub = s.add[0].sub;
-        const remnant = sanitize_plus_term(s.add.slice(1));
-        if (equal(sub, t)) return s;
-        return find(remnant, t);
-    } else {
-        return s;
-    }
-}
-
-// replace(s, t)
-function replace(s: T, t: T): T {
-    if (s.type === "zero") {
-        return Z;
-    } else if (s.type === "plus") {
-        const a = s.add[0];
-        const b = sanitize_plus_term(s.add.slice(1));
-        return plus(replace(a, t), replace(b, t));
-    } else {
-        return psi(t, s.arg);
-    }
-}
-
 // x[y]
 function fund(s: T, t: T): T {
     if (s.type === "zero") {
@@ -128,25 +101,13 @@ function fund(s: T, t: T): T {
                 return psi(a, fund(b, t));
             } else {
                 const e = domd.sub;
-                if (b.type === "plus") {
-                    if (equal(dom(t), ONE)) {
-                        const c = domb.sub;
-                        const p = fund(s, fund(t, Z));
-                        if (p.type !== "psi") throw Error("なんでだよ");
-                        const gamma = p.arg;
-                        return psi(a, fund(b, replace(find(gamma, c), fund(e, Z))));
-                    } else {
-                        return psi(a, fund(b, Z));
-                    }
+                if (equal(dom(t), ONE)) {
+                    const p = fund(s, fund(t, Z));
+                    if (p.type !== "psi") throw Error("なんでだよ");
+                    const gamma = p.arg;
+                    return psi(a, fund(b, psi(fund(e, Z), gamma)));
                 } else {
-                    if (equal(dom(t), ONE)) {
-                        const p = fund(s, fund(t, Z));
-                        if (p.type !== "psi") throw Error("なんでだよ");
-                        const gamma = p.arg;
-                        return psi(a, fund(b, psi(fund(e, Z), gamma)));
-                    } else {
-                        return psi(a, fund(b, psi(fund(e, Z), Z)));
-                    }
+                    return psi(a, fund(b, psi(fund(e, Z), Z)));
                 }
             }
         }
