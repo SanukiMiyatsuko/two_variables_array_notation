@@ -127,15 +127,26 @@ function fund(s: T, t: T): T {
                 }
                 return psi(a, fund(b, t));
             } else {
-                if (equal(dom(t), ONE)) {
-                    const c = domb.sub;
-                    const e = domd.sub;
-                    const p = fund(s, fund(t, Z));
-                    if (p.type !== "psi") throw Error("なんでだよ");
-                    const gamma = p.arg;
-                    return psi(a, fund(b, replace(find(gamma, c), fund(e, Z))));
+                const e = domd.sub;
+                if (b.type === "plus") {
+                    if (equal(dom(t), ONE)) {
+                        const c = domb.sub;
+                        const p = fund(s, fund(t, Z));
+                        if (p.type !== "psi") throw Error("なんでだよ");
+                        const gamma = p.arg;
+                        return psi(a, fund(b, replace(find(gamma, c), fund(e, Z))));
+                    } else {
+                        return psi(a, fund(b, Z));
+                    }
                 } else {
-                    return psi(a, fund(b, Z));
+                    if (equal(dom(t), ONE)) {
+                        const p = fund(s, fund(t, Z));
+                        if (p.type !== "psi") throw Error("なんでだよ");
+                        const gamma = p.arg;
+                        return psi(a, fund(b, psi(fund(e, Z), gamma)));
+                    } else {
+                        return psi(a, fund(b, psi(fund(e, Z), Z)));
+                    }
                 }
             }
         }
