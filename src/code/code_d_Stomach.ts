@@ -29,17 +29,11 @@ function dom(t: T): ZT | PT {
     } else {
         const domb = dom(t.arg);
         if (domb.type === "zero") {
-            const a = t.sub;
-            if (a.type === "zero") {
+            const doma = dom(t.sub);
+            if (doma.type === "zero" || equal(doma, ONE)) {
                 return t;
-            } else if (a.type === "plus") {
-                if (a.add.every(x => equal(x, ONE))) return t;
-                throw Error("未定義です");
-            } else {
-                if (equal(a, ONE)) return t;
-                if (equal(a, OMEGA)) return OMEGA;
-                throw Error("未定義です");
             }
+            return OMEGA;
         } else if (equal(domb, ONE)) {
             return OMEGA;
         } else {
@@ -66,15 +60,34 @@ function fund(s: T, t: T): T {
         const b = s.arg;
         const domb = dom(b);
         if (domb.type === "zero") {
-            if (a.type === "zero") {
+            const doma = dom(a);
+            if (doma.type === "zero" || equal(doma, ONE)) {
                 return t;
-            } else if (a.type === "plus") {
-                if (a.add.every(x => equal(x, ONE))) return t;
-                throw Error("未定義です");
+            } else if (equal(a, OMEGA)) {
+                return psi(fund(a, t), b);
             } else {
-                if (equal(a, ONE)) return t;
-                if (equal(a, OMEGA)) return psi(fund(a, t), b);
-                throw Error("未定義です");
+                const domd = dom(doma.arg);
+                if (domd.type === "zero") {
+                    const c = doma.sub;
+                    if (equal(dom(t), ONE)) {
+                        const p = fund(s, fund(t, Z));
+                        if (p.type !== "psi") throw Error("なんでだよ");
+                        const gamma = p.arg;
+                        return psi(a, fund(b, psi(fund(c, Z), gamma)));
+                    } else {
+                        return psi(a, fund(b, psi(fund(c, Z), Z)));
+                    }
+                } else {
+                    const e = domd.sub;
+                    if (equal(dom(t), ONE)) {
+                        const p = fund(s, fund(t, Z));
+                        if (p.type !== "psi") throw Error("なんでだよ");
+                        const gamma = p.arg;
+                        return psi(a, fund(b, psi(fund(e, Z), gamma)));
+                    } else {
+                        return psi(a, fund(b, psi(fund(e, Z), Z)));
+                    }
+                }
             }
         } else if (equal(domb, ONE)) {
             if (equal(dom(t), ONE)) {
