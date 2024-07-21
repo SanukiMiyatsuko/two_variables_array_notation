@@ -73,9 +73,9 @@ function fund(s: T, t: T): T {
                         const p = fund(s, fund(t, Z));
                         if (p.type !== "psi") throw Error("なんでだよ");
                         const gamma = p.arg;
-                        return psi(a, fund(b, psi(fund(c, Z), gamma)));
+                        return psi(fund(a, psi(fund(c, Z), gamma)), b);
                     } else {
-                        return psi(a, fund(b, psi(fund(c, Z), Z)));
+                        return psi(fund(a, psi(fund(c, Z), Z)), b);
                     }
                 } else {
                     const e = domd.sub;
@@ -83,9 +83,9 @@ function fund(s: T, t: T): T {
                         const p = fund(s, fund(t, Z));
                         if (p.type !== "psi") throw Error("なんでだよ");
                         const gamma = p.arg;
-                        return psi(a, fund(b, psi(fund(e, Z), gamma)));
+                        return psi(fund(a, psi(fund(e, Z), gamma)), b);
                     } else {
-                        return psi(a, fund(b, psi(fund(e, Z), Z)));
+                        return psi(fund(a, psi(fund(e, Z), Z)), b);
                     }
                 }
             }
