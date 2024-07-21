@@ -21,17 +21,17 @@ export class Stomach_Function implements Hyouki {
 }
 
 // dom(t)
-function dom(t: T): ZT | PT {
-    if (t.type === "zero") {
+function dom(s: T): ZT | PT {
+    if (s.type === "zero") {
         return Z;
-    } else if (t.type === "plus") {
-        return dom(t.add[t.add.length - 1]);
+    } else if (s.type === "plus") {
+        return dom(s.add[s.add.length - 1]);
     } else {
-        const domb = dom(t.arg);
+        const domb = dom(s.arg);
         if (domb.type === "zero") {
-            const doma = dom(t.sub);
+            const doma = dom(s.sub);
             if (doma.type === "zero" || equal(doma, ONE)) {
-                return t;
+                return s;
             }
             return OMEGA;
         } else if (equal(domb, ONE)) {
@@ -39,8 +39,8 @@ function dom(t: T): ZT | PT {
         } else {
             const domd = dom(domb.arg);
             if (equal(domd, Z)) {
-                if (less_than(t, domb)) return OMEGA;
-                return t;
+                if (less_than(s, domb)) return OMEGA;
+                return s;
             }
             return OMEGA;
         }
@@ -72,7 +72,7 @@ function fund(s: T, t: T): T {
                     if (equal(dom(t), ONE)) {
                         const p = fund(s, fund(t, Z));
                         if (p.type !== "psi") throw Error("なんでだよ");
-                        const gamma = p.arg;
+                        const gamma = p.sub;
                         return psi(fund(a, psi(fund(c, Z), gamma)), b);
                     } else {
                         return psi(fund(a, psi(fund(c, Z), Z)), b);
@@ -82,7 +82,7 @@ function fund(s: T, t: T): T {
                     if (equal(dom(t), ONE)) {
                         const p = fund(s, fund(t, Z));
                         if (p.type !== "psi") throw Error("なんでだよ");
-                        const gamma = p.arg;
+                        const gamma = p.sub;
                         return psi(fund(a, psi(fund(e, Z), gamma)), b);
                     } else {
                         return psi(fund(a, psi(fund(e, Z), Z)), b);
