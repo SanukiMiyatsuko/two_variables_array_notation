@@ -196,6 +196,40 @@ export function term_to_string_gamma(t: T, options: Options, strHead: string): s
                     return strHead + "_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
                 }
             }
+            if (options.checkOnOffT) {
+                if (strHead === "ψ") {
+                    if (t.sub.type === "zero") {
+                        return "\\psi(0," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    }  else if (t.sub.type === "plus") {
+                        if (t.sub.add.every((x) => equal(x, ONE)))
+                            return "\\psi(" + t.sub.add.length + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        return "\\psi(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    } else {
+                        if (equal(t.sub, ONE))
+                            return "\\psi(1," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        if (options.checkOnOffo && equal(t.sub, OMEGA))
+                            return "\\psi(\\omega," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        if (options.checkOnOffO && equal(t.sub, LOMEGA))
+                            return "\\psi(\\Omega," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        return "\\psi(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    }
+                }
+                if (t.sub.type === "zero") {
+                    return "\\textrm{" + strHead + "}(0," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                }  else if (t.sub.type === "plus") {
+                    if (t.sub.add.every((x) => equal(x, ONE)))
+                        return "\\textrm{" + strHead + "}(" + t.sub.add.length + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    return "\\textrm{" + strHead + "}(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                } else {
+                    if (equal(t.sub, ONE))
+                        return "\\textrm{" + strHead + "}(1," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    if (options.checkOnOffo && equal(t.sub, OMEGA))
+                        return "\\textrm{" + strHead + "}(\\omega," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    if (options.checkOnOffO && equal(t.sub, LOMEGA))
+                        return "\\textrm{" + strHead + "}(\\Omega," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    return "\\textrm{" + strHead + "}(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                }
+            }
             if (t.sub.type === "zero") {
                 return strHead + "(0," + term_to_string_gamma(t.arg, options, strHead) + ")";
             }  else if (t.sub.type === "plus") {
