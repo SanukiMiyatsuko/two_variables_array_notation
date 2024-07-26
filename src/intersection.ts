@@ -70,7 +70,7 @@ export function less_than(s: T, t: T): boolean {
             return false;
         } else if (t.type === "psi") {
             return less_than(s.sub, t.sub) ||
-                (equal(s.sub, t.sub) && less_than(s.arg, t.arg))
+                (equal(s.sub, t.sub) && less_than(s.arg, t.arg));
         } else {
             return equal(s, t.add[0]) || less_than(s, t.add[0]);
         }
@@ -89,6 +89,16 @@ export function less_than(s: T, t: T): boolean {
 }
 
 // ===========================================
+export type strT = {
+    term: T;
+    gamma: T | null;
+}
+
+export interface Hyouki {
+    fund(a: T, b: T): strT;
+    dom(a: T): strT;
+}
+
 export type Options = {
     checkOnOffo: boolean;
     checkOnOffO: boolean;
@@ -126,6 +136,85 @@ export function term_to_string(t: T, options: Options, strHead: string): string 
         return strHead + "(" + term_to_string(t.arg, options, strHead) + ")";
     } else {
         return t.add.map((x) => term_to_string(x, options, strHead)).join("+");
+    }
+}
+
+export function term_to_string_gamma(t: T, options: Options, strHead: string): string {
+    if (options.checkOnOffp) strHead = "ψ";
+    if (t.type === "zero") {
+        return "0";
+    } else if (t.type === "psi") {
+        if (!(options.checkOnOffC && t.sub.type === "zero")) {
+            if (options.checkOnOffA) {
+                if (options.checkOnOffB || options.checkOnOffT) {
+                    if (strHead === "ψ") {
+                        if (t.sub.type === "zero") {
+                            return "\\psi_{0}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        } else if (t.sub.type === "plus") {
+                            if (t.sub.add.every((x) => equal(x, ONE)))
+                                return "\\psi_{" + t.sub.add.length + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                            return "\\psi_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        } else {
+                            if (equal(t.sub, ONE))
+                                return "\\psi_{1}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                            if (options.checkOnOffo && equal(t.sub, OMEGA))
+                                return "\\psi_{\\omega}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                            if (options.checkOnOffO && equal(t.sub, LOMEGA))
+                                return "\\psi_{\\Omega}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                            return "\\psi_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        }
+                    }
+                    if (t.sub.type === "zero") {
+                        return "\\textrm{" + strHead + "}_{0}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    } else if (t.sub.type === "plus") {
+                        if (t.sub.add.every((x) => equal(x, ONE)))
+                            return "\\textrm{" + strHead + "}_{" + t.sub.add.length + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        return "\\textrm{" + strHead + "}_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    } else {
+                        if (equal(t.sub, ONE))
+                            return "\\textrm{" + strHead + "}_{1}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        if (options.checkOnOffo && equal(t.sub, OMEGA))
+                            return "\\textrm{" + strHead + "}_{\\omega}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        if (options.checkOnOffO && equal(t.sub, LOMEGA))
+                            return "\\textrm{" + strHead + "}_{\\Omega}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                        return "\\textrm{" + strHead + "}_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    }
+                }
+                if (t.sub.type === "zero") {
+                    return strHead + "_0(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                } else if (t.sub.type === "plus") {
+                    if (t.sub.add.every((x) => equal(x, ONE)))
+                        return strHead + "_" + t.sub.add.length + "(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    return strHead + "_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                } else {
+                    if (equal(t.sub, ONE))
+                        return strHead + "_1(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    if (options.checkOnOffo && equal(t.sub, OMEGA))
+                        return strHead + "_ω(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    if (options.checkOnOffO && equal(t.sub, LOMEGA))
+                        return strHead + "_Ω(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    return strHead + "_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                }
+            }
+            if (t.sub.type === "zero") {
+                return strHead + "(0," + term_to_string_gamma(t.arg, options, strHead) + ")";
+            }  else if (t.sub.type === "plus") {
+                if (t.sub.add.every((x) => equal(x, ONE)))
+                    return strHead + "(" + t.sub.add.length + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                return strHead + "(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+            } else {
+                if (equal(t.sub, ONE))
+                    return strHead + "(1," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                if (options.checkOnOffo && equal(t.sub, OMEGA))
+                    return strHead + "(ω," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                if (options.checkOnOffO && equal(t.sub, LOMEGA))
+                    return strHead + "(Ω," + term_to_string_gamma(t.arg, options, strHead) + ")";
+                return strHead + "(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+            }
+        }
+        return strHead + "(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+    } else {
+        return t.add.map((x) => term_to_string_gamma(x, options, strHead)).join("+");
     }
 }
 

@@ -1,21 +1,19 @@
-import { ZT, PT, T, Z, ONE, OMEGA, equal, psi, plus, sanitize_plus_term, term_to_string, abbrviate, Options, less_than } from "../intersection";
-import { Hyouki, strT } from "../junction";
+import { Hyouki, strT, ZT, PT, T, Z, ONE, OMEGA, equal, psi, plus, sanitize_plus_term, less_than } from "../intersection";
 
-const strHead = "茸";
 export class Side_Mushroom_Function implements Hyouki {
-    fund(a: T, b: T, options: Options): strT {
-        const result = fund(a, b);
+    fund(a: T, b: T): strT {
+        const result = fundAndGamma(a, b);
         return ({
-            str: abbrviate(term_to_string(result, options, strHead), options, strHead),
-            term: result
+            term: result.fund,
+            gamma: result.gammat ? result.gammat : null,
         });
     }
 
-    dom(a: T, options: Options): strT {
+    dom(a: T): strT {
         const result = dom(a);
         return ({
-            str: abbrviate(term_to_string(result, options, strHead), options, strHead),
-            term: result
+            term: result,
+            gamma: null,
         });
     }
 }
@@ -65,73 +63,85 @@ function find_parent(s: T, t: T): T {
     }
 }
 
-// x[y]
-function fund(s: T, t: T): T {
-    if (s.type == "zero") {
-        return Z;
-    } else if (s.type == "plus") {
-        const lastfund = fund(s.add[s.add.length - 1], t);
-        const remains = sanitize_plus_term(s.add.slice(0, s.add.length - 1));
-        return plus(remains, lastfund);
-    } else {
-        const sub = s.sub;
-        const arg = s.arg;
-        const domsub = dom(sub);
-        const domarg = dom(arg);
-        if (equal(domarg, Z)) {
-            if (equal(domsub, Z)) {
-                return Z;
-            } else if (equal(domsub, ONE)) {
-                return t;
-            } else {
-                return psi(fund(sub, t), Z);
-            }
-        } else if (equal(domarg, ONE)) {
-            if (less_than(t, OMEGA) && equal(dom(t), ONE)) {
-                return plus(fund(s, fund(t, Z)), psi(sub, fund(arg, Z)));
-            } else {
-                return Z;
-            }
+function fundAndGamma(a: T, b: T) {
+    let bp: T | null = null;
+    // x[y]
+    function fund(s: T, t: T): T {
+        if (s.type == "zero") {
+            return Z;
+        } else if (s.type == "plus") {
+            const lastfund = fund(s.add[s.add.length - 1], t);
+            const remains = sanitize_plus_term(s.add.slice(0, s.add.length - 1));
+            return plus(remains, lastfund);
         } else {
-            if (less_than(domarg, s)) {
-                return psi(sub, fund(arg, t));
-            } else {
-                if (domarg.type != "psi") throw Error("なんでだよ");
-                const domargarg = dom(domarg.arg);
-                if (domargarg.type == "zero") {
-                    const c = domarg.sub;
-                    if (equal(c, plus(sub, ONE))) return psi(sub, fund(arg, t));
-                    if (equal(dom(t), ONE)) {
-                        const p = fund(s, fund(t, Z));
-                        if (p.type != "psi") throw Error("なんでだよ");
-                        const gamma = p.arg;
-                        return psi(sub, fund(arg, psi(fund(c, Z), gamma)));
-                    } else {
-                        return psi(sub, fund(arg, psi(fund(c, Z), Z)));
-                    }
+            const a = s.sub;
+            const b = s.arg;
+            const domb = dom(b);
+            if (domb.type === "zero") {
+                const doma = dom(a);
+                if (doma.type === "zero" || equal(doma, ONE)) {
+                    return t;
                 } else {
-                    const e = domargarg.sub;
-                    if (equal(e, plus(sub, ONE))) {
-                        if (equal(dom(t), ONE)) {
-                            const p = fund(s, fund(t, Z));
-                            if (p.type != "psi") throw Error("なんでだよ");
-                            const gamma = p.arg;
-                            return psi(sub, fund(arg, find_parent(gamma, sub)));
+                    return psi(fund(a, t), Z);
+                }
+            } else if (equal(domb, ONE)) {
+                if (!bp) bp = psi(a, fund(b, Z));
+                if (less_than(t, OMEGA) && equal(dom(t), ONE)) {
+                    return plus(fund(s, fund(t, Z)), psi(a, fund(b, Z)));
+                } else {
+                    return Z;
+                }
+            } else {
+                if (less_than(domb, s)) {
+                    return psi(a, fund(b, t));
+                } else {
+                    const domd = dom(domb.arg);
+                    if (domd.type == "zero") {
+                        const c = domb.sub;
+                        if (equal(c, plus(a, ONE))) {
+                            return psi(a, fund(b, t));
                         } else {
-                            return psi(sub, fund(arg, Z));
+                            if (!bp) bp = psi(fund(c, Z), fund(b, Z));
+                            if (equal(dom(t), ONE)) {
+                                const p = fund(s, fund(t, Z));
+                                if (p.type != "psi") throw Error("なんでだよ");
+                                const gamma = p.arg;
+                                return psi(a, fund(b, psi(fund(c, Z), gamma)));
+                            } else {
+                                return psi(a, fund(b, Z));
+                            }
                         }
                     } else {
-                        if (equal(dom(t), ONE)) {
-                            const p = fund(s, fund(t, Z));
-                            if (p.type != "psi") throw Error("なんでだよ");
-                            const gamma = p.arg;
-                            return psi(sub, fund(arg, psi(fund(e, Z), gamma)));
+                        const e = domd.sub;
+                        if (equal(e, plus(a, ONE))) {
+                            if (!bp) bp = find_parent(fund(b, Z), a);
+                            if (equal(dom(t), ONE)) {
+                                const p = fund(s, fund(t, Z));
+                                if (p.type != "psi") throw Error("なんでだよ");
+                                const gamma = p.arg;
+                                return psi(a, fund(b, find_parent(gamma, a)));
+                            } else {
+                                return psi(a, fund(b, Z));
+                            }
                         } else {
-                            return psi(sub, fund(arg, psi(fund(e, Z), Z)));
+                            if (!bp) bp = psi(fund(e, Z), fund(b, Z));
+                            if (equal(dom(t), ONE)) {
+                                const p = fund(s, fund(t, Z));
+                                if (p.type != "psi") throw Error("なんでだよ");
+                                const gamma = p.arg;
+                                return psi(a, fund(b, psi(fund(e, Z), gamma)));
+                            } else {
+                                return psi(a, fund(b, Z));
+                            }
                         }
                     }
                 }
             }
         }
     }
+
+    return ({
+        fund: fund(a, b),
+        gammat: bp,
+    });
 }

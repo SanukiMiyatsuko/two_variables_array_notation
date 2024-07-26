@@ -6,18 +6,19 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-import { sketch_input, sketch_output } from './picture';
-import { less_than, Options, T, Z } from './intersection';
-import { Hyouki, strT, switchFunc } from './junction';
+import { sketch_gamma, sketch_input, sketch_output } from './picture';
+import { Hyouki, strT, less_than, Options, T, Z, term_to_string, abbrviate, term_to_string_gamma } from './intersection';
+import { switchFunc } from './junction';
 
 type Operation = "fund" | "dom" | "less_than";
 
 function App() {
   const [inputA, setInputA] = useState("");
   const [inputB, setInputB] = useState("");
-  const [selected, setSelected] = useState('G');
-  const [output, setOutput] = useState("出力：");
+  const [selected, setSelected] = useState("G");
+  const [output, setOutput] = useState("入力：\n\n出力：");
   const [outputObject, setOutputObject] = useState<T>(Z);
+  const [outputGamma, setOutputGamma] = useState<T | null>(null);
   const [outputError, setOutputError] = useState("");
   const [options, setOptions] = useState<Options>({
     checkOnOffo: false,
@@ -39,9 +40,16 @@ function App() {
     try {
       const x = new Scanner(inputA, selected).parse_term();
       const y = inputB ? new Scanner(inputB, selected).parse_term() : null;
+
+      const termToString = (x: T): string => {
+        return abbrviate(term_to_string(x, options, selected), options, selected);
+      }
+
+      let inputStr = termToString(x);
       if (operation === "less_than") {
         if (y === null) throw Error("Bの入力が必要です");
-        setOutput(`出力：${less_than(x, y) ? "真" : "偽"}`);
+        inputStr = options.checkOnOffT ? `入力：$${inputStr} \\lt ${termToString(y)}$` : `入力：${inputStr} < ${termToString(y)}`;
+        setOutput(`${inputStr}\n\n出力：${less_than(x, y) ? "真" : "偽"}`);
         return;
       }
 
@@ -50,17 +58,29 @@ function App() {
         switch (operation) {
           case "fund":
             if (y === null) throw Error("Bの入力が必要です");
-            return func.fund(x, y, options);
+            inputStr = `${inputStr}[${termToString(y)}]`;
+            inputStr = options.checkOnOffT ? `入力：$${inputStr}$` : `入力：${inputStr}`;
+            return func.fund(x, y);
           case "dom":
-            return func.dom(x, options);
+            inputStr = options.checkOnOffT ? `入力：$\\textrm{dom}(${inputStr})$` : `入力：dom(${inputStr})`;
+            return func.dom(x);
           default:
             throw new Error("不明な操作");
         }
       })();
 
-      setOutputObject(result.term);
+      let strTerm = abbrviate(term_to_string(result.term, options, selected), options, selected);
+      strTerm = `\n\n出力：${options.checkOnOffT ? `$${strTerm}$` : strTerm}`;
+      let strGamma = ``;
+      if (result.gamma) {
+        strGamma = term_to_string_gamma(result.gamma, options, selected);
+        strGamma = `\n\nBadpart：${options.checkOnOffT ? `$${strGamma}$` : strGamma}`;
+      }
 
-      setOutput(`出力：${options.checkOnOffT ? `$${result.str}$` : result.str}`);
+      setOutputObject(result.term);
+      setOutputGamma(result.gamma);
+
+      setOutput(`${inputStr}${strGamma}${strTerm}`);
     } catch (error) {
       if (error instanceof Error) setOutputError(error.message);
       else setOutputError("不明なエラー");
@@ -210,6 +230,7 @@ function App() {
         </div>
         <div className='sketchCanvas'>
           <ReactP5Wrapper sketch={sketch_input} inputstr={inputA} headSize={inputHeadSize} headRange={inputHeadRange} headHeight={inputHeadHeight} headname={selected} />
+          <ReactP5Wrapper sketch={sketch_gamma} gamma={outputGamma} headSize={inputHeadSize} headRange={inputHeadRange} headHeight={inputHeadHeight} />
           <ReactP5Wrapper sketch={sketch_output} output={outputObject} headSize={inputHeadSize} headRange={inputHeadRange} headHeight={inputHeadHeight} />
         </div>
       </main>

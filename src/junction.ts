@@ -8,17 +8,7 @@ import { Buchholzs_Psi_Function } from './code/code_h_BuchholzsPsi';
 import { Goal_Function } from "./code/code_i_Goal";
 import { Side_Bamboo_Function } from './code/code_j_SideBamboo';
 import { Side_Mushroom_Function } from './code/code_k_SideMushroom';
-import { Options, T } from './intersection';
-
-export type strT = {
-    str: string;
-    term: T;
-}
-
-export interface Hyouki {
-    fund(a: T, b: T, options: Options): strT;
-    dom(a: T, options: Options): strT;
-}
+import { Hyouki } from './intersection';
 
 export function switchFunc(fnName: string): Hyouki {
     switch (fnName) {

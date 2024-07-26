@@ -5,6 +5,7 @@ import { Scanner } from "./parse";
 
 type MySketchProps = SketchProps & {
     inputstr: string;
+    gamma: T;
     output: T;
     headSize: number;
     headRange: number;
@@ -60,6 +61,79 @@ export const sketch_input = (p: P5CanvasInstance<MySketchProps>) => {
                 } else {
                     let seq = [[-1, 0]]
                     const op = O_RTtoST(parsedInput);
+                    if (op === null) {
+                        p.resizeCanvas(330, 40);
+                        p.fill(0);
+                        p.textSize(20);
+                        p.text("ヒドラで表示できない項です", 130, 15);
+                    } else {
+                        seq = seq.concat(op);
+                        p.resizeCanvas(seqLeng(seq, nodeSize, nodeRange), canvasdepth(seq, nodeSize, nodeHeight));
+                        drawKurage(seq, p, nodeSize, nodeRange, nodeHeight);
+                    }
+                }
+            } catch (e) {
+                console.error("Error in draw function:", e);
+            }
+        }
+    }
+}
+
+export const sketch_gamma = (p: P5CanvasInstance<MySketchProps>) => {
+    let Gamma: T = Z;
+    let nodeSize = 60;
+    let nodeRange = 90;
+    let nodeHeight = 90;
+    let update = true;
+
+    p.setup = () => {
+        p.createCanvas(0, 0);
+        p.textAlign(p.CENTER, p.CENTER);
+        p.frameRate(DEFAULT_FRAME_RATE);
+    };
+
+    p.updateWithProps = props => {
+        let ga: T;
+        if (Gamma === null) {
+            ga = Z;
+        } else if (Gamma.type === "zero") {
+            ga = Z;
+        } else if (Gamma.type === "plus") {
+            ga = { type: "plus", add: [...Gamma.add] };
+        } else {
+            ga = { type: "psi", sub: Gamma.sub, arg: Gamma.arg };
+        }
+        const ns = nodeSize;
+        const nr = nodeRange;
+        const nh = nodeHeight;
+        ({
+            gamma: Gamma,
+            headSize: nodeSize,
+            headRange: nodeRange,
+            headHeight: nodeHeight,
+        } = props);
+        if (Gamma === null) {
+            Gamma = Z;
+        }
+        if (
+            !equal(ga, Gamma) ||
+            ns !== nodeSize ||
+            nr !== nodeRange ||
+            nh !== nodeHeight
+        ) {
+            update = true;
+        }
+    };
+
+    p.draw = () => {
+        if (update) {
+            update = false;
+            try {
+                if (equal(Gamma, Z)) {
+                    p.resizeCanvas(0, 0);
+                } else {
+                    let seq = [[-1, 0]]
+                    const op = O_RTtoST(Gamma);
                     if (op === null) {
                         p.resizeCanvas(330, 40);
                         p.fill(0);
