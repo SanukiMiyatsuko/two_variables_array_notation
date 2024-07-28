@@ -7,7 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { sketch_gamma, sketch_input, sketch_output } from './picture';
-import { Hyouki, strT, less_than, Options, T, Z, term_to_string, abbrviate, term_to_string_gamma } from './intersection';
+import { Hyouki, strT, less_than, Options, T, Z, termToString, term_to_string_gamma } from './intersection';
 import { switchFunc } from './junction';
 
 type Operation = "fund" | "dom" | "less_than";
@@ -41,14 +41,12 @@ function App() {
       const x = new Scanner(inputA, selected).parse_term();
       const y = inputB ? new Scanner(inputB, selected).parse_term() : null;
 
-      const termToString = (x: T): string => {
-        return abbrviate(term_to_string(x, options, selected), options, selected);
-      }
-
-      let inputStr = termToString(x);
+      let inputStr = termToString(x, options, selected);
+      let inputStry: string;
       if (operation === "less_than") {
         if (y === null) throw Error("Bの入力が必要です");
-        inputStr = options.checkOnOffT ? `入力：$${inputStr} \\lt ${termToString(y)}$` : `入力：${inputStr} < ${termToString(y)}`;
+        inputStry = termToString(y, options, selected);
+        inputStr = options.checkOnOffT ? `入力：$${inputStr} \\lt ${inputStry}$` : `入力：${inputStr} < ${inputStry}`;
         setOutput(`${inputStr}\n\n出力：${less_than(x, y) ? "真" : "偽"}`);
         return;
       }
@@ -58,7 +56,8 @@ function App() {
         switch (operation) {
           case "fund":
             if (y === null) throw Error("Bの入力が必要です");
-            inputStr = `${inputStr}[${termToString(y)}]`;
+            inputStry = termToString(y, options, selected);
+            inputStr = `${inputStr}[${inputStry}]`;
             inputStr = options.checkOnOffT ? `入力：$${inputStr}$` : `入力：${inputStr}`;
             return func.fund(x, y);
           case "dom":
@@ -69,7 +68,7 @@ function App() {
         }
       })();
 
-      let strTerm = abbrviate(term_to_string(result.term, options, selected), options, selected);
+      let strTerm = termToString(result.term, options, selected);
       strTerm = `\n\n出力：${options.checkOnOffT ? `$${strTerm}$` : strTerm}`;
       let strGamma = ``;
       if (result.gamma) {

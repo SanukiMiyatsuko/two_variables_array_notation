@@ -110,7 +110,7 @@ export type Options = {
 };
 
 // オブジェクトから文字列へ
-export function term_to_string(t: T, options: Options, strHead: string): string {
+function term_to_string(t: T, options: Options, strHead: string): string {
     if (options.checkOnOffp) strHead = "ψ";
     if (t.type === "zero") {
         return "0";
@@ -139,120 +139,18 @@ export function term_to_string(t: T, options: Options, strHead: string): string 
     }
 }
 
-export function term_to_string_gamma(t: T, options: Options, strHead: string): string {
-    if (options.checkOnOffp) strHead = "ψ";
-    if (t.type === "zero") {
-        return "0";
-    } else if (t.type === "psi") {
-        if (!(options.checkOnOffC && t.sub.type === "zero")) {
-            if (options.checkOnOffA) {
-                if (options.checkOnOffB || options.checkOnOffT) {
-                    if (strHead === "ψ") {
-                        if (t.sub.type === "zero") {
-                            return "\\psi_{0}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        } else if (t.sub.type === "plus") {
-                            if (t.sub.add.every((x) => equal(x, ONE)))
-                                return "\\psi_{" + t.sub.add.length + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                            return "\\psi_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        } else {
-                            if (equal(t.sub, ONE))
-                                return "\\psi_{1}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                            if (options.checkOnOffo && equal(t.sub, OMEGA))
-                                return "\\psi_{\\omega}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                            if (options.checkOnOffO && equal(t.sub, LOMEGA))
-                                return "\\psi_{\\Omega}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                            return "\\psi_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        }
-                    }
-                    if (t.sub.type === "zero") {
-                        return "\\textrm{" + strHead + "}_{0}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    } else if (t.sub.type === "plus") {
-                        if (t.sub.add.every((x) => equal(x, ONE)))
-                            return "\\textrm{" + strHead + "}_{" + t.sub.add.length + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        return "\\textrm{" + strHead + "}_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    } else {
-                        if (equal(t.sub, ONE))
-                            return "\\textrm{" + strHead + "}_{1}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        if (options.checkOnOffo && equal(t.sub, OMEGA))
-                            return "\\textrm{" + strHead + "}_{\\omega}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        if (options.checkOnOffO && equal(t.sub, LOMEGA))
-                            return "\\textrm{" + strHead + "}_{\\Omega}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        return "\\textrm{" + strHead + "}_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    }
-                }
-                if (t.sub.type === "zero") {
-                    return strHead + "_0(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                } else if (t.sub.type === "plus") {
-                    if (t.sub.add.every((x) => equal(x, ONE)))
-                        return strHead + "_" + t.sub.add.length + "(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    return strHead + "_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                } else {
-                    if (equal(t.sub, ONE))
-                        return strHead + "_1(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    if (options.checkOnOffo && equal(t.sub, OMEGA))
-                        return strHead + "_ω(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    if (options.checkOnOffO && equal(t.sub, LOMEGA))
-                        return strHead + "_Ω(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    return strHead + "_{" + term_to_string_gamma(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                }
-            }
-            if (options.checkOnOffT) {
-                if (strHead === "ψ") {
-                    if (t.sub.type === "zero") {
-                        return "\\psi(0," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    }  else if (t.sub.type === "plus") {
-                        if (t.sub.add.every((x) => equal(x, ONE)))
-                            return "\\psi(" + t.sub.add.length + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        return "\\psi(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    } else {
-                        if (equal(t.sub, ONE))
-                            return "\\psi(1," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        if (options.checkOnOffo && equal(t.sub, OMEGA))
-                            return "\\psi(\\omega," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        if (options.checkOnOffO && equal(t.sub, LOMEGA))
-                            return "\\psi(\\Omega," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                        return "\\psi(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    }
-                }
-                if (t.sub.type === "zero") {
-                    return "\\textrm{" + strHead + "}(0," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                }  else if (t.sub.type === "plus") {
-                    if (t.sub.add.every((x) => equal(x, ONE)))
-                        return "\\textrm{" + strHead + "}(" + t.sub.add.length + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    return "\\textrm{" + strHead + "}(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                } else {
-                    if (equal(t.sub, ONE))
-                        return "\\textrm{" + strHead + "}(1," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    if (options.checkOnOffo && equal(t.sub, OMEGA))
-                        return "\\textrm{" + strHead + "}(\\omega," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    if (options.checkOnOffO && equal(t.sub, LOMEGA))
-                        return "\\textrm{" + strHead + "}(\\Omega," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    return "\\textrm{" + strHead + "}(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                }
-            }
-            if (t.sub.type === "zero") {
-                return strHead + "(0," + term_to_string_gamma(t.arg, options, strHead) + ")";
-            }  else if (t.sub.type === "plus") {
-                if (t.sub.add.every((x) => equal(x, ONE)))
-                    return strHead + "(" + t.sub.add.length + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                return strHead + "(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-            } else {
-                if (equal(t.sub, ONE))
-                    return strHead + "(1," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                if (options.checkOnOffo && equal(t.sub, OMEGA))
-                    return strHead + "(ω," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                if (options.checkOnOffO && equal(t.sub, LOMEGA))
-                    return strHead + "(Ω," + term_to_string_gamma(t.arg, options, strHead) + ")";
-                return strHead + "(" + term_to_string_gamma(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-            }
-        }
-        return strHead + "(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+function to_TeX(str: string, options: Options, strHead: string): string {
+    if (options.checkOnOffp || strHead === "ψ") {
+        str = str.replace(RegExp("ψ", "g"), "\\psi");
     } else {
-        return t.add.map((x) => term_to_string_gamma(x, options, strHead)).join("+");
+        str = str.replace(RegExp(strHead, "g"), "\\textrm{" + strHead + "}");
     }
+    str = str.replace(/ω/g, "\\omega");
+    str = str.replace(/Ω/g, "\\Omega");
+    return str;
 }
 
-export function abbrviate(str: string, options: Options, strHead: string): string {
+function abbrviate(str: string, options: Options, strHead: string): string {
     if (options.checkOnOffp) strHead = "ψ";
     str = str.replace(RegExp(strHead + "\\(0\\)", "g"), "1");
     str = str.replace(RegExp(strHead + "_\\{0\\}\\(0\\)", "g"), "1");
@@ -282,13 +180,76 @@ export function abbrviate(str: string, options: Options, strHead: string): strin
     return str;
 }
 
-function to_TeX(str: string, options: Options, strHead: string): string {
-    if (options.checkOnOffp || strHead === "ψ") {
-        str = str.replace(RegExp("ψ", "g"), "\\psi");
+export function termToString(t: T, options: Options, strHead: string): string {
+    return abbrviate(term_to_string(t, options, strHead), options, strHead);
+}
+
+export function term_to_string_gamma(t: T, options: Options, strHead: string): string {
+    if (options.checkOnOffp) strHead = "ψ";
+    if (t.type === "zero") {
+        return "0";
+    } else if (t.type === "psi") {
+        let str = strHead;
+        if (options.checkOnOffT) {
+            str = `\\textrm{${strHead}}`;
+            if (strHead === "ψ") {
+                str = `\\psi`;
+            }
+        }
+        if (!(options.checkOnOffC && t.sub.type === "zero")) {
+            if (options.checkOnOffA) {
+                if (options.checkOnOffB || options.checkOnOffT) {
+                    if (t.sub.type === "zero") {
+                        return str + "_{0}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    } else if (t.sub.type === "plus") {
+                        return str + "_{" + stringAbbrviate(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    } else {
+                        return str + "_{" + matchAndReplaceOmegas(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    }
+                }
+                if (t.sub.type === "zero") {
+                    return str + "_0(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                } else if (t.sub.type === "plus") {
+                    if (t.sub.add.every(x => equal(x, ONE)))
+                        return str + "_" + t.sub.add.length + "(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    return str + "_{" + stringAbbrviate(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                } else {
+                    if (equal(t.sub, ONE) || (options.checkOnOffo && equal(t.sub, OMEGA)) || (options.checkOnOffO && equal(t.sub, LOMEGA)))
+                        return str + "_" + matchAndReplaceOmegas(t.sub, options, strHead) + "(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                    return str + "_{" + matchAndReplaceOmegas(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
+                }
+            }
+            if (t.sub.type === "zero") {
+                return str + "(0," + term_to_string_gamma(t.arg, options, strHead) + ")";
+            }  else if (t.sub.type === "plus") {
+                return str + "(" + stringAbbrviate(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+            } else {
+                return str + "(" + matchAndReplaceOmegas(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
+            }
+        }
+        return str + "(" + term_to_string_gamma(t.arg, options, strHead) + ")";
     } else {
-        str = str.replace(RegExp(strHead, "g"), "\\textrm{" + strHead + "}");
+        return t.add.map((x) => term_to_string_gamma(x, options, strHead)).join("+");
     }
-    str = str.replace(/ω/g, "\\omega");
-    str = str.replace(/Ω/g, "\\Omega");
+}
+
+function matchAndReplaceOmegas(s: PT, options: Options, strHead: string): string {
+    if (equal(s, ONE)) return `1`;
+    if (options.checkOnOffo && equal(s, OMEGA)) return options.checkOnOffT ? `\\omega` : `ω`;
+    if (options.checkOnOffO && equal(s, LOMEGA)) return options.checkOnOffT ? `\\Omega` : `Ω`;
+    return term_to_string_gamma(s, options, strHead);
+}
+
+function stringAbbrviate(s: AT, options: Options, strHead: string): string {
+    let str = s.add.map(x => matchAndReplaceOmegas(x, options, strHead)).join("+");
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+        const numterm = str.match(/1(\+1)+/);
+        if (!numterm) break;
+        const matches = numterm[0].match(/1/g);
+        if (!matches) throw Error("そんなことある？");
+        const count = matches.length;
+        str = str.replace(numterm[0], count.toString());
+    }
     return str;
 }
