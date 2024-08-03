@@ -37,6 +37,8 @@ function App() {
   const compute = (operation: Operation) => {
     setOutput("");
     setOutputError("");
+    setOutputObject(Z);
+    setOutputGamma(null);
     try {
       const x = new Scanner(inputA, selected).parse_term();
       const y = inputB ? new Scanner(inputB, selected).parse_term() : null;
