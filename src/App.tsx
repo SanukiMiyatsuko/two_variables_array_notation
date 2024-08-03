@@ -41,12 +41,13 @@ function App() {
       const x = new Scanner(inputA, selected).parse_term();
       const y = inputB ? new Scanner(inputB, selected).parse_term() : null;
 
-      let inputStr = termToString(x, options, selected);
+      const inputStrx = termToString(x, options, selected);
       let inputStry: string;
+      let inputStr: string;
       if (operation === "less_than") {
         if (y === null) throw Error("Bの入力が必要です");
         inputStry = termToString(y, options, selected);
-        inputStr = options.checkOnOffT ? `入力：$${inputStr} \\lt ${inputStry}$` : `入力：${inputStr} < ${inputStry}`;
+        inputStr = options.checkOnOffT ? `入力：$${inputStrx} \\lt ${inputStry}$` : `入力：${inputStrx} < ${inputStry}`;
         setOutput(`${inputStr}\n\n出力：${less_than(x, y) ? "真" : "偽"}`);
         return;
       }
@@ -57,11 +58,10 @@ function App() {
           case "fund":
             if (y === null) throw Error("Bの入力が必要です");
             inputStry = termToString(y, options, selected);
-            inputStr = `${inputStr}[${inputStry}]`;
-            inputStr = options.checkOnOffT ? `入力：$${inputStr}$` : `入力：${inputStr}`;
+            inputStr = options.checkOnOffT ? `入力：$${inputStrx}[${inputStry}]$` : `入力：${inputStrx}[${inputStry}]`;
             return func.fund(x, y);
           case "dom":
-            inputStr = options.checkOnOffT ? `入力：$\\textrm{dom}(${inputStr})$` : `入力：dom(${inputStr})`;
+            inputStr = options.checkOnOffT ? `入力：$\\textrm{dom}(${inputStrx})$` : `入力：dom(${inputStrx})`;
             return func.dom(x);
           default:
             throw new Error("不明な操作");

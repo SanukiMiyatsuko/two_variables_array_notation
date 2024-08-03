@@ -5,7 +5,7 @@ export class Side_Bamboo_Function implements Hyouki {
         const result = fundAndGamma(a, b);
         return ({
             term: result.fund,
-            gamma: result.gammat ? result.gammat : null,
+            gamma: result.gammat,
         });
     }
 
