@@ -80,7 +80,7 @@ export const sketch_input = (p: P5CanvasInstance<MySketchProps>) => {
 }
 
 export const sketch_gamma = (p: P5CanvasInstance<MySketchProps>) => {
-    let Gamma: T | null = Z;
+    let Gamma: T | null = null;
     let nodeSize = 60;
     let nodeRange = 90;
     let nodeHeight = 90;
@@ -93,9 +93,9 @@ export const sketch_gamma = (p: P5CanvasInstance<MySketchProps>) => {
     };
 
     p.updateWithProps = props => {
-        let ga: T;
-        if (!Gamma) {
-            ga = Z;
+        let ga: T | null;
+        if (Gamma === null) {
+            ga = null;
         } else if (Gamma.type === "zero") {
             ga = Z;
         } else if (Gamma.type === "plus") {
@@ -113,7 +113,9 @@ export const sketch_gamma = (p: P5CanvasInstance<MySketchProps>) => {
             headHeight: nodeHeight,
         } = props);
         if (
-            !equal(ga, Gamma) ||
+            !(ga === null && Gamma === null) ||
+            ((ga !== null && Gamma !== null) &&
+            !equal(ga, Gamma)) ||
             ns !== nodeSize ||
             nr !== nodeRange ||
             nh !== nodeHeight
