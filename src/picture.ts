@@ -128,12 +128,12 @@ export const sketch_gamma = (p: P5CanvasInstance<MySketchProps>) => {
         if (update) {
             update = false;
             try {
-                if (!Gamma || equal(Gamma, Z)) {
+                if (Gamma === null || equal(Gamma, Z)) {
                     p.resizeCanvas(0, 0);
                 } else {
                     let seq = [[-1, 0]]
                     const op = O_RTtoST(Gamma);
-                    if (!op) {
+                    if (op === null) {
                         p.resizeCanvas(330, 40);
                         p.fill(0);
                         p.textSize(20);
@@ -333,18 +333,18 @@ function O_RTtoST(s: T): number[][] | null {
     } else if (s.type === "plus") {
         const a = s.add[0];
         const oa = O_RTtoST(a);
-        if (!oa) return null;
+        if (oa === null) return null;
         const b = sanitize_plus_term(s.add.slice(1));
         const ob = O_RTtoST(b);
-        if (!ob) return null;
+        if (ob === null) return null;
         return oa.concat(ob);
     } else {
         const a = number_term(s.sub);
-        if (!a) return null;
+        if (a === null) return null;
         const b = s.arg;
         const beta = [[0, a]];
         const ob = O_RTtoST(b);
-        if (!ob) return null;
+        if (ob === null) return null;
         const gamma = [...ob.map((x) => [x[0] + 1, x[1]])];
         return beta.concat(gamma);
     }

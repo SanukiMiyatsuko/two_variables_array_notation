@@ -41,14 +41,14 @@ function App() {
     setOutputGamma(null);
     try {
       const x = inputA ? new Scanner(inputA, selected).parse_term() : null;
-      if (!x) throw Error("Aの入力が必要です");
+      if (x === null) throw Error("Aの入力が必要です");
       const y = inputB ? new Scanner(inputB, selected).parse_term() : null;
 
       const inputStrx = termToString(x, options, selected);
       let inputStry: string;
       let inputStr: string;
       if (operation === "less_than") {
-        if (!y) throw Error("Bの入力が必要です");
+        if (y === null) throw Error("Bの入力が必要です");
         inputStry = termToString(y, options, selected);
         inputStr = options.checkOnOffT ? `入力：$${inputStrx} \\lt ${inputStry}$` : `入力：${inputStrx} < ${inputStry}`;
         setOutput(`${inputStr}\n\n出力：${less_than(x, y) ? "真" : "偽"}`);
@@ -59,7 +59,7 @@ function App() {
       const result: strT = (() => {
         switch (operation) {
           case "fund":
-            if (!y) throw Error("Bの入力が必要です");
+            if (y === null) throw Error("Bの入力が必要です");
             inputStry = termToString(y, options, selected);
             inputStr = options.checkOnOffT ? `入力：$${inputStrx}[${inputStry}]$` : `入力：${inputStrx}[${inputStry}]`;
             return func.fund(x, y);
@@ -74,7 +74,7 @@ function App() {
       let strTerm = termToString(result.term, options, selected);
       strTerm = `\n\n出力：${options.checkOnOffT ? `$${strTerm}$` : strTerm}`;
       let strGamma = ``;
-      if (result.gamma) {
+      if (result.gamma !== null) {
         strGamma = term_to_string_gamma(result.gamma, options, selected);
         strGamma = `\n\nBadpart：${options.checkOnOffT ? `$${strGamma}$` : strGamma}`;
       }
