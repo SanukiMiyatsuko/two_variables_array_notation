@@ -241,7 +241,7 @@ function App() {
         <a href="https://googology.fandom.com/ja/wiki/%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC%E3%83%96%E3%83%AD%E3%82%B0:P%E9%80%B2%E5%A4%A7%E5%A5%BD%E3%81%8Dbot/%E6%8B%A1%E5%BC%B5Buchholz_OCF%E3%81%AB%E4%BC%B4%E3%81%86%E9%A0%86%E5%BA%8F%E6%95%B0%E8%A1%A8%E8%A8%98" target="_blank" rel="noreferrer">Definition of "Ordinal Notation Associated to Extended Buchholz's OCF"</a> by <a href="https://googology.fandom.com/ja/wiki/%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC:P%E9%80%B2%E5%A4%A7%E5%A5%BD%E3%81%8Dbot" target="_blank" rel="noreferrer">p進大好きbot</a>, Retrieved 2024/07/18 <br />
         <a href="https://googology.fandom.com/ja/wiki/%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC%E3%83%96%E3%83%AD%E3%82%B0:%E7%AB%B9%E5%8F%96%E7%BF%81/%E3%83%96%E3%83%AD%E3%82%B0%E8%A8%98%E4%BA%8B%E3%81%BE%E3%81%A8%E3%82%81" target="_blank" rel="noreferrer">Definition of other functions</a> by <a href="https://googology.fandom.com/ja/wiki/%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC:%E7%AB%B9%E5%8F%96%E7%BF%81" target="_blank" rel="noreferrer">竹取翁</a>, Retrieved 2024/07/18 <br />
         The program <a href="https://github.com/SanukiMiyatsuko/two_variables_array_notation" target="_blank" rel="noreferrer">https://github.com/SanukiMiyatsuko/two_variables_array_notation</a> is licensed by <a href="https://creativecommons.org/licenses/by-sa/3.0/legalcode" target="_blank" rel="noreferrer">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.<br />
-        Last updated: 2024/07/21
+        Last updated: 2024/08/08
       </footer>
     </div>
   );
