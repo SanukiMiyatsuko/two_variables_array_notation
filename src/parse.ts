@@ -70,6 +70,13 @@ export class Scanner {
         return true;
     }
 
+    consumeStrHead(): boolean {
+        const ch = this.str[this.pos];
+        if (ch !== "ψ" && ch !== "p" && ch !== this.headname && ch !== headNameReplace(this.headname)) return false;
+        this.pos += 1;
+        return true;
+    }
+
     // 次の文字が期待した文字なら1文字進める。
     // 次の文字が期待した文字でないなら例外を投げる。
     expect(op: string): void {
@@ -83,16 +90,14 @@ export class Scanner {
         this.pos += 1;
     }
 
-    expect3(op1: string, op2: string, op3: string): void {
-        const ch = this.str[this.pos];
-        const op4 = headNameReplace(op3);
-        if (ch === undefined)
-            throw Error(
-                `${this.pos + 1}文字目に、文字がありません`,
-            );
-        if (ch !== op1 && ch !== op2 && ch !== op3 && ch !== op4)
-            throw Error(`${this.pos + 1}文字目に${op1}または${op2}または${op3}または${op4}が期待されていましたが、${ch}が見つかりました`);
+    parse_number(): number {
+        let num = parseInt(this.str[this.pos]);
         this.pos += 1;
+        while (is_numchar(this.str[this.pos])) {
+            num = num * 10 + parseInt(this.str[this.pos]);
+            this.pos += 1;
+        }
+        return num;
     }
 
     // 式をパース
@@ -100,43 +105,28 @@ export class Scanner {
         if (this.str === "") throw Error(`Empty string`);
         if (this.consume("0")) {
             return Z;
-        } else if (is_numchar(this.str[this.pos])) {
-            // 0以外の数字にマッチ
-            let list: PT[] = [];
-            const num_start = this.pos;
-            let num_end = num_start;
-            while (is_numchar(this.str[num_end])) {
-                num_end += 1;
-            }
-            const num = parseInt(this.str.slice(num_start, num_end + 1));
-            this.pos = num_end;
-            const fn = from_nat(num);
-            if (fn.type === "plus") list = list.concat(fn.add);
-            else list.push(fn);
-            while (this.consume("+")) {
-                const term = this.parse_term();
-                if (term.type === "zero") {
-                    throw Error(`0は+で接続できません`);
-                } else if (term.type === "plus") {
-                    list = list.concat(term.add);
-                } else {
-                    list.push(term);
-                }
-            }
-            return sanitize_plus_term(list);
         } else {
             let list: PT[] = [];
-            const first = this.parse_principal();
-            list.push(first);
+            if (is_numchar(this.str[this.pos])) {
+                // 0以外の数字にマッチ
+                const num = this.parse_number();
+                const fn = from_nat(num);
+                if (fn.type === "plus") list = fn.add;
+                else list.push(fn);
+            } else {
+                const first = this.parse_principal();
+                list.push(first);
+            }
             while (this.consume("+")) {
-                const term = this.parse_term();
-                if (term.type === "zero") {
-                    throw Error(`0は+で接続できません`);
-                } else if (term.type === "plus") {
-                    list = list.concat(term.add);
+                let term: AT | PT;
+                if (is_numchar(this.str[this.pos])) {
+                    const num = this.parse_number();
+                    term = from_nat(num);
                 } else {
-                    list.push(term);
+                    term = this.parse_principal();
                 }
+                if (term.type === "plus") list = list.concat(term.add);
+                else list.push(term);
             }
             return sanitize_plus_term(list);
         }
@@ -151,21 +141,36 @@ export class Scanner {
         } else if (this.consume("W") || this.consume("Ω")) {
             return LOMEGA;
         } else {
-            this.expect3("ψ", "p", this.headname);
-            this.consume("_");
             let sub: T;
-            if (this.consume("(")) {
-                const term = this.parse_term();
-                if (this.consume(")")) return psi(Z, term);
-                sub = term;
-                this.expect(",");
-            } else if (this.consume("{")) {
-                sub = this.parse_term();
-                this.expect("}");
-                this.expect("(");
+            if (this.consumeStrHead()) {
+                if (this.consume("(")) {
+                    const arg = this.parse_term();
+                    if (this.consume(")")) return psi(Z,arg);
+                    sub = this.parse_term();
+                    this.expect(",");
+                } else {
+                    this.consume("_");
+                    if (this.consume("{")) {
+                        sub = this.parse_term();
+                        this.expect("}");
+                        this.expect("(");
+                    } else {
+                        sub = this.parse_term();
+                        this.expect("(");
+                    }
+                }
             } else {
-                sub = this.parse_term();
-                this.expect("(");
+                if (this.consume("(")) {
+                    const arg = this.parse_term();
+                    if (this.consume(")")) return psi(Z,arg);
+                    sub = this.parse_term();
+                    this.expect(",");
+                } else {
+                    this.expect("{");
+                    sub = this.parse_term();
+                    this.expect("}");
+                    this.expect("(");
+                }
             }
             const arg = this.parse_term();
             this.expect(")");
