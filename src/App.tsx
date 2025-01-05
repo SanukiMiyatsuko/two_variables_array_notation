@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ReactP5Wrapper } from 'react-p5-wrapper';
 import './App.css';
-import { headNameReplace, Scanner } from "./parse";
+import { Scanner } from "./parse";
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -40,9 +40,9 @@ function App() {
     setOutputObject(Z);
     setOutputGamma(null);
     try {
-      const x = inputA ? new Scanner(inputA, selected).parse_term() : null;
+      const x = inputA ? new Scanner(inputA).parse_term() : null;
       if (x === null) throw Error("Aの入力が必要です");
-      const y = inputB ? new Scanner(inputB, selected).parse_term() : null;
+      const y = inputB ? new Scanner(inputB).parse_term() : null;
 
       const inputStrx = termToString(x, options, selected);
       let inputStry: string;
@@ -107,7 +107,7 @@ function App() {
           {selected !== "ψ" && <>ψは{selected}としても大丈夫です。<br /></>}
           _, &#123;, &#125;は省略可能です。<br />
           略記として、1 := ψ(0,0), n := 1 + 1 + ...(n個の1)... + 1, ω := ψ(0,1), Ω := ψ(1,0)が使用可能。<br />
-          また、ψは"p"で、{selected !== "ψ" && <>または{selected}は"{headNameReplace(selected)}"で、</>}ωはwで、ΩはWで代用可能です。
+          また、ψは他の一文字で、ωはwで、ΩはWで代用可能です。
         </p>
         A:
         <input

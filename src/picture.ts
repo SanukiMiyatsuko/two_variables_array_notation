@@ -20,7 +20,6 @@ export const sketch_input = (p: P5CanvasInstance<MySketchProps>) => {
     let nodeSize = 60;
     let nodeRange = 90;
     let nodeHeight = 90;
-    let headname = "";
     let update = true;
 
     p.setup = () => {
@@ -39,7 +38,6 @@ export const sketch_input = (p: P5CanvasInstance<MySketchProps>) => {
             headSize: nodeSize,
             headRange: nodeRange,
             headHeight: nodeHeight,
-            headname: headname,
         } = props);
         if (
             inp !== input ||
@@ -55,7 +53,7 @@ export const sketch_input = (p: P5CanvasInstance<MySketchProps>) => {
         if (update) {
             update = false;
             try {
-                const parsedInput = input ? new Scanner(input, headname).parse_term() : null;
+                const parsedInput = input ? new Scanner(input).parse_term() : null;
                 if (parsedInput === null) {
                     p.resizeCanvas(0, 0);
                 } else {
