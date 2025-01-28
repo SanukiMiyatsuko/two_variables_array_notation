@@ -7,7 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { sketch_gamma, sketch_input, sketch_output } from './picture';
-import { Hyouki, strT, less_than, Options, T, Z, termToString, term_to_string_gamma } from './intersection';
+import { Hyouki, strT, less_than, Options, T, Z, termToString } from './intersection';
 import { switchFunc } from './junction';
 
 type Operation = "fund" | "dom" | "less_than";
@@ -18,7 +18,7 @@ function App() {
   const [selected, setSelected] = useState("G");
   const [output, setOutput] = useState("入力：\n\n出力：");
   const [outputObject, setOutputObject] = useState<T>(Z);
-  const [outputGamma, setOutputGamma] = useState<T | null>(null);
+  const [outputGamma, setOutputGamma] = useState<T>(Z);
   const [outputError, setOutputError] = useState("");
   const [options, setOptions] = useState<Options>({
     checkOnOffo: false,
@@ -26,6 +26,7 @@ function App() {
     checkOnOffA: false,
     checkOnOffB: false,
     checkOnOffC: false,
+    checkOnOffh: false,
     checkOnOffp: false,
     checkOnOffT: false,
   });
@@ -38,7 +39,7 @@ function App() {
     setOutput("");
     setOutputError("");
     setOutputObject(Z);
-    setOutputGamma(null);
+    setOutputGamma(Z);
     try {
       const x = inputA ? new Scanner(inputA).parse_term() : null;
       if (x === null) throw Error("Aの入力が必要です");
@@ -73,14 +74,13 @@ function App() {
 
       let strTerm = termToString(result.term, options, selected);
       strTerm = `\n\n出力：${options.checkOnOffT ? `$${strTerm}$` : strTerm}`;
-      let strGamma = ``;
-      if (result.gamma !== null) {
-        strGamma = term_to_string_gamma(result.gamma, options, selected);
-        strGamma = `\n\nBadpart：${options.checkOnOffT ? `$${strGamma}$` : strGamma}`;
-      }
-
       setOutputObject(result.term);
-      setOutputGamma(result.gamma);
+      let strGamma = ``;
+      if (result.gamma.type !== "zero") {
+        strGamma = termToString(result.gamma, options, selected);
+        strGamma = `\n\nBadpart：${options.checkOnOffT ? `$${strGamma}$` : strGamma}`;
+        setOutputGamma(result.gamma);
+      }
 
       setOutput(`${inputStr}${strGamma}${strTerm}`);
     } catch (error) {
@@ -102,12 +102,10 @@ function App() {
       <header>2変数配列表記計算機</header>
       <main>
         <p className="rdm">
-          入力はψ(a,b), ψ_&#123;a&#125;(b)の形式で行ってください。<br />
+          入力はψ(a,b), ψ_&#123;a&#125;(b), ψ_a(b), ψ&#123;a&#125;(b), ψa(b), (a,b), &#123;a&#125;(b)の形式で行ってください。<br />
           a=0の時はψ(b)としても大丈夫です。<br />
-          {selected !== "ψ" && <>ψは{selected}としても大丈夫です。<br /></>}
-          _, &#123;, &#125;は省略可能です。<br />
           略記として、1 := ψ(0,0), n := 1 + 1 + ...(n個の1)... + 1, ω := ψ(0,1), Ω := ψ(1,0)が使用可能。<br />
-          また、ψは他の一文字で、ωはwで、ΩはWで代用可能です。
+          ψは他の一文字で、ωはwで、ΩはWで代用可能です。
         </p>
         A:
         <input
@@ -143,7 +141,7 @@ function App() {
               <option value="胃">胃関数</option>
               <option value="亞">亞関数</option>
               <option value="B">B関数</option>
-              <option value="ψ">ブーフホルツのψ関数</option>
+              <option value="ψ">拡張ブーフホルツのψ関数</option>
               <option value="G">Goal関数</option>
               <option value="竹">横竹関数</option>
               <option value="茸">横茸関数</option>
@@ -155,31 +153,39 @@ function App() {
           <ul>
             <li><label className="checkbox">
               <input type="checkbox" checked={options.checkOnOffo} onChange={() => handleCheckboxChange('checkOnOffo')} />
-              &nbsp;{options.checkOnOffp ? "ψ" : selected}(0,1)をωで出力
+              &nbsp;{options.checkOnOffh ? `${options.checkOnOffC ? `(1)` : `(0,1)`}` : `${options.checkOnOffp ? "ψ" : selected}${options.checkOnOffC ? `(1)` : `${options.checkOnOffA ? `${options.checkOnOffB ? `_{0}(1)` : `_0(1)`}` : `(0,1)`}`}`}をωで出力
             </label></li>
             <li><label className="checkbox">
               <input type="checkbox" checked={options.checkOnOffO} onChange={() => handleCheckboxChange('checkOnOffO')} />
-              &nbsp;{options.checkOnOffp ? "ψ" : selected}(1,0)をΩで出力
+              &nbsp;{options.checkOnOffh ? `(1,0)` : `${options.checkOnOffp ? "ψ" : selected}${options.checkOnOffA ? `${options.checkOnOffB ? `_{1}(0)` : `_1(0)`}` : `(1,0)`}`}をΩで出力
             </label></li>
-            <li><label className="checkbox">
-              <input type="checkbox" checked={options.checkOnOffA} onChange={() => handleCheckboxChange('checkOnOffA')} />
-              &nbsp;{options.checkOnOffp ? "ψ" : selected}(a,b)を{options.checkOnOffp ? "ψ" : selected}_a(b)で表示
-            </label></li>
-            {options.checkOnOffA && (
-              <li><ul><li><label className="checkbox">
-                <input type="checkbox" checked={options.checkOnOffB} onChange={() => handleCheckboxChange('checkOnOffB')} />
-                &nbsp;全ての&#123; &#125;を表示
-              </label></li></ul></li>
-            )}
             <li><label className="checkbox">
               <input type="checkbox" checked={options.checkOnOffC} onChange={() => handleCheckboxChange('checkOnOffC')} />
-              &nbsp;{options.checkOnOffp ? "ψ" : selected}(0,b)を{options.checkOnOffp ? "ψ" : selected}(b)で表示
+              &nbsp;{options.checkOnOffh ? "(0,b)" : `${options.checkOnOffp ? "ψ" : selected}${options.checkOnOffA ? `${options.checkOnOffB ? `_{0}(b)` : `_0(b)`}` : `(0,b)`}`}を{options.checkOnOffh ? "" : `${options.checkOnOffp ? "ψ" : selected}`}(b)で表示
             </label></li>
-            {selected !== "ψ" && (
-              <li><label className="checkbox">
-                <input type="checkbox" checked={options.checkOnOffp} onChange={() => handleCheckboxChange('checkOnOffp')} />
-                &nbsp;{selected}をψで表示
-              </label></li>
+            <li><label className="checkbox">
+              <input type="checkbox" checked={options.checkOnOffh} onChange={() => handleCheckboxChange('checkOnOffh')} />
+              &nbsp;頭文字を非表示
+            </label></li>
+            {!options.checkOnOffh && (
+              <>
+                <li><label className="checkbox">
+                  <input type="checkbox" checked={options.checkOnOffA} onChange={() => handleCheckboxChange('checkOnOffA')} />
+                  &nbsp;{options.checkOnOffh ? "" : `${options.checkOnOffp ? "ψ" : selected}`}(a,b)を{options.checkOnOffp ? "ψ" : selected}_{options.checkOnOffB ? `{a}` : `a`}(b)で表示
+                </label></li>
+                {options.checkOnOffA && (
+                  <li><ul><li><label className="checkbox">
+                    <input type="checkbox" checked={options.checkOnOffB} onChange={() => handleCheckboxChange('checkOnOffB')} />
+                    &nbsp;全ての&#123; &#125;を表示
+                  </label></li></ul></li>
+                )}
+                {selected !== "ψ" && (
+                  <li><label className="checkbox">
+                    <input type="checkbox" checked={options.checkOnOffp} onChange={() => handleCheckboxChange('checkOnOffp')} />
+                    &nbsp;{selected}をψで表示
+                  </label></li>
+                )}
+              </>
             )}
             <li><label className="checkbox">
               <input type="checkbox" checked={options.checkOnOffT} onChange={() => handleCheckboxChange('checkOnOffT')} />

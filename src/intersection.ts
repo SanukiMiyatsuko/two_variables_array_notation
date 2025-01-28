@@ -91,7 +91,7 @@ export function less_than(s: T, t: T): boolean {
 // ===========================================
 export type strT = {
     term: T;
-    gamma: T | null;
+    gamma: T;
 }
 
 export interface Hyouki {
@@ -105,6 +105,7 @@ export type Options = {
     checkOnOffA: boolean;
     checkOnOffB: boolean;
     checkOnOffC: boolean;
+    checkOnOffh: boolean;
     checkOnOffp: boolean;
     checkOnOffT: boolean;
 };
@@ -115,25 +116,27 @@ function term_to_string(t: T, options: Options, strHead: string): string {
     if (t.type === "zero") {
         return "0";
     } else if (t.type === "psi") {
-        if (!(options.checkOnOffC && t.sub.type === "zero")) {
-            if (options.checkOnOffA) {
-                if (options.checkOnOffB || options.checkOnOffT)
-                    return strHead + "_{" + term_to_string(t.sub, options, strHead) + "}(" + term_to_string(t.arg, options, strHead) + ")";
-                if (t.sub.type === "zero") {
-                    return strHead + "_0(" + term_to_string(t.arg, options, strHead) + ")";
-                } else if (t.sub.type === "plus") {
-                    if (t.sub.add.every((x) => equal(x, ONE)))
-                        return strHead + "_" + term_to_string(t.sub, options, strHead) + "(" + term_to_string(t.arg, options, strHead) + ")";
-                    return strHead + "_{" + term_to_string(t.sub, options, strHead) + "}(" + term_to_string(t.arg, options, strHead) + ")";
-                } else {
-                    if (equal(t.sub, ONE) || (options.checkOnOffo && equal(t.sub, OMEGA)) || (options.checkOnOffO && equal(t.sub, LOMEGA)))
-                        return strHead + "_" + term_to_string(t.sub, options, strHead) + "(" + term_to_string(t.arg, options, strHead) + ")";
-                    return strHead + "_{" + term_to_string(t.sub, options, strHead) + "}(" + term_to_string(t.arg, options, strHead) + ")";
-                }
-            }
-            return strHead + "(" + term_to_string(t.sub, options, strHead) + "," + term_to_string(t.arg, options, strHead) + ")";
+        if (options.checkOnOffC && t.sub.type === "zero") {
+            if (options.checkOnOffh) return "(" + term_to_string(t.arg, options, strHead) + ")";
+            return strHead + "(" + term_to_string(t.arg, options, strHead) + ")";
         }
-        return strHead + "(" + term_to_string(t.arg, options, strHead) + ")";
+        if (options.checkOnOffh) return "(" + term_to_string(t.sub, options, strHead) + "," + term_to_string(t.arg, options, strHead) + ")";
+        if (options.checkOnOffA) {
+            if (options.checkOnOffB || options.checkOnOffT)
+                return strHead + "_{" + term_to_string(t.sub, options, strHead) + "}(" + term_to_string(t.arg, options, strHead) + ")";
+            if (t.sub.type === "zero") {
+                return strHead + "_0(" + term_to_string(t.arg, options, strHead) + ")";
+            } else if (t.sub.type === "plus") {
+                if (t.sub.add.every((x) => equal(x, ONE)))
+                    return strHead + "_" + term_to_string(t.sub, options, strHead) + "(" + term_to_string(t.arg, options, strHead) + ")";
+                return strHead + "_{" + term_to_string(t.sub, options, strHead) + "}(" + term_to_string(t.arg, options, strHead) + ")";
+            } else {
+                if (equal(t.sub, ONE) || (options.checkOnOffo && equal(t.sub, OMEGA)) || (options.checkOnOffO && equal(t.sub, LOMEGA)))
+                    return strHead + "_" + term_to_string(t.sub, options, strHead) + "(" + term_to_string(t.arg, options, strHead) + ")";
+                return strHead + "_{" + term_to_string(t.sub, options, strHead) + "}(" + term_to_string(t.arg, options, strHead) + ")";
+            }
+        }
+        return strHead + "(" + term_to_string(t.sub, options, strHead) + "," + term_to_string(t.arg, options, strHead) + ")";
     } else {
         return t.add.map((x) => term_to_string(x, options, strHead)).join("+");
     }
@@ -156,16 +159,25 @@ function abbrviate(str: string, options: Options, strHead: string): string {
     str = str.replace(RegExp(strHead + "_\\{0\\}\\(0\\)", "g"), "1");
     str = str.replace(RegExp(strHead + "_0\\(0\\)", "g"), "1");
     str = str.replace(RegExp(strHead + "\\(0,0\\)", "g"), "1");
+    if (options.checkOnOffh) {
+        str = str.replace(RegExp("\\(0\\)", "g"), "1");
+        str = str.replace(RegExp("\\(0,0\\)", "g"), "1");
+    }
     if (options.checkOnOffo) {
         str = str.replace(RegExp(strHead + "\\(1\\)", "g"), "ω");
         str = str.replace(RegExp(strHead + "_\\{0\\}\\(1\\)", "g"), "ω");
         str = str.replace(RegExp(strHead + "_0\\(1\\)", "g"), "ω");
         str = str.replace(RegExp(strHead + "\\(0,1\\)", "g"), "ω");
+        if (options.checkOnOffh) {
+            str = str.replace(RegExp("\\(1\\)", "g"), "ω");
+            str = str.replace(RegExp("\\(0,1\\)", "g"), "ω");
+        }
     }
     if (options.checkOnOffO) {
         str = str.replace(RegExp(strHead + "_\\{1\\}\\(0\\)", "g"), "Ω");
         str = str.replace(RegExp(strHead + "_1\\(0\\)", "g"), "Ω");
         str = str.replace(RegExp(strHead + "\\(1,0\\)", "g"), "Ω");
+        if (options.checkOnOffh) str = str.replace(RegExp("\\(1,0\\)", "g"), "Ω");
     }
     if (options.checkOnOffT) str = to_TeX(str, options, strHead);
     // eslint-disable-next-line no-constant-condition
@@ -182,74 +194,4 @@ function abbrviate(str: string, options: Options, strHead: string): string {
 
 export function termToString(t: T, options: Options, strHead: string): string {
     return abbrviate(term_to_string(t, options, strHead), options, strHead);
-}
-
-export function term_to_string_gamma(t: T, options: Options, strHead: string): string {
-    if (options.checkOnOffp) strHead = "ψ";
-    if (t.type === "zero") {
-        return "0";
-    } else if (t.type === "psi") {
-        let str = strHead;
-        if (options.checkOnOffT) {
-            str = `\\textrm{${strHead}}`;
-            if (strHead === "ψ") {
-                str = `\\psi`;
-            }
-        }
-        if (!(options.checkOnOffC && t.sub.type === "zero")) {
-            if (options.checkOnOffA) {
-                if (options.checkOnOffB || options.checkOnOffT) {
-                    if (t.sub.type === "zero") {
-                        return str + "_{0}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    } else if (t.sub.type === "plus") {
-                        return str + "_{" + stringAbbrviate(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    } else {
-                        return str + "_{" + matchAndReplaceOmegas(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    }
-                }
-                if (t.sub.type === "zero") {
-                    return str + "_0(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                } else if (t.sub.type === "plus") {
-                    if (t.sub.add.every(x => equal(x, ONE)))
-                        return str + "_" + t.sub.add.length + "(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    return str + "_{" + stringAbbrviate(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                } else {
-                    if (equal(t.sub, ONE) || (options.checkOnOffo && equal(t.sub, OMEGA)) || (options.checkOnOffO && equal(t.sub, LOMEGA)))
-                        return str + "_" + matchAndReplaceOmegas(t.sub, options, strHead) + "(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                    return str + "_{" + matchAndReplaceOmegas(t.sub, options, strHead) + "}(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-                }
-            }
-            if (t.sub.type === "zero") {
-                return str + "(0," + term_to_string_gamma(t.arg, options, strHead) + ")";
-            }  else if (t.sub.type === "plus") {
-                return str + "(" + stringAbbrviate(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-            } else {
-                return str + "(" + matchAndReplaceOmegas(t.sub, options, strHead) + "," + term_to_string_gamma(t.arg, options, strHead) + ")";
-            }
-        }
-        return str + "(" + term_to_string_gamma(t.arg, options, strHead) + ")";
-    } else {
-        return t.add.map((x) => term_to_string_gamma(x, options, strHead)).join("+");
-    }
-}
-
-function matchAndReplaceOmegas(s: PT, options: Options, strHead: string): string {
-    if (equal(s, ONE)) return `1`;
-    if (options.checkOnOffo && equal(s, OMEGA)) return options.checkOnOffT ? `\\omega` : `ω`;
-    if (options.checkOnOffO && equal(s, LOMEGA)) return options.checkOnOffT ? `\\Omega` : `Ω`;
-    return term_to_string_gamma(s, options, strHead);
-}
-
-function stringAbbrviate(s: AT, options: Options, strHead: string): string {
-    let str = s.add.map(x => matchAndReplaceOmegas(x, options, strHead)).join("+");
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-        const numterm = str.match(/1(\+1)+/);
-        if (!numterm) break;
-        const matches = numterm[0].match(/1/g);
-        if (!matches) throw Error("そんなことある？");
-        const count = matches.length;
-        str = str.replace(numterm[0], count.toString());
-    }
-    return str;
 }

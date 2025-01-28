@@ -28,25 +28,21 @@ export const sketch_input = (p: P5CanvasInstance<MySketchProps>) => {
         p.frameRate(DEFAULT_FRAME_RATE);
     };
 
-    p.updateWithProps = props => {
-        const inp = input;
-        const ns = nodeSize;
-        const nr = nodeRange;
-        const nh = nodeHeight;
+    p.updateWithProps = (props: MySketchProps) => {
+        if (
+            input !== props.inputstr ||
+            nodeSize !== props.headSize ||
+            nodeRange !== props.headRange ||
+            nodeHeight !== props.headHeight
+        ) {
+            update = true;
+        }
         ({
             inputstr: input,
             headSize: nodeSize,
             headRange: nodeRange,
             headHeight: nodeHeight,
         } = props);
-        if (
-            inp !== input ||
-            ns !== nodeSize ||
-            nr !== nodeRange ||
-            nh !== nodeHeight
-        ) {
-            update = true;
-        }
     };
 
     p.draw = () => {
@@ -78,7 +74,7 @@ export const sketch_input = (p: P5CanvasInstance<MySketchProps>) => {
 }
 
 export const sketch_gamma = (p: P5CanvasInstance<MySketchProps>) => {
-    let Gamma: T | null = null;
+    let Gamma: T = Z;
     let nodeSize = 60;
     let nodeRange = 90;
     let nodeHeight = 90;
@@ -90,36 +86,21 @@ export const sketch_gamma = (p: P5CanvasInstance<MySketchProps>) => {
         p.frameRate(DEFAULT_FRAME_RATE);
     };
 
-    p.updateWithProps = props => {
-        let ga: T | null;
-        if (Gamma === null) {
-            ga = null;
-        } else if (Gamma.type === "zero") {
-            ga = Z;
-        } else if (Gamma.type === "plus") {
-            ga = { type: "plus", add: [...Gamma.add] };
-        } else {
-            ga = { type: "psi", sub: Gamma.sub, arg: Gamma.arg };
+    p.updateWithProps = (props: MySketchProps) => {
+        if (
+            !equal(Gamma, props.gamma) ||
+            nodeSize !== props.headSize ||
+            nodeRange !== props.headRange ||
+            nodeHeight !== props.headHeight
+        ) {
+            update = true;
         }
-        const ns = nodeSize;
-        const nr = nodeRange;
-        const nh = nodeHeight;
         ({
             gamma: Gamma,
             headSize: nodeSize,
             headRange: nodeRange,
             headHeight: nodeHeight,
         } = props);
-        if (
-            !(ga === null && Gamma === null) ||
-            ((ga !== null && Gamma !== null) &&
-            !equal(ga, Gamma)) ||
-            ns !== nodeSize ||
-            nr !== nodeRange ||
-            nh !== nodeHeight
-        ) {
-            update = true;
-        }
     };
 
     p.draw = () => {
@@ -162,32 +143,21 @@ export const sketch_output = (p: P5CanvasInstance<MySketchProps>) => {
         p.frameRate(DEFAULT_FRAME_RATE);
     };
 
-    p.updateWithProps = props => {
-        let outp: T;
-        if (outPut.type === "zero") {
-            outp = Z;
-        } else if (outPut.type === "plus") {
-            outp = { type: "plus", add: [...outPut.add] };
-        } else {
-            outp = { type: "psi", sub: outPut.sub, arg: outPut.arg };
+    p.updateWithProps = (props: MySketchProps) => {
+        if (
+            !equal(outPut, props.output) ||
+            nodeSize !== props.headSize ||
+            nodeRange !== props.headRange ||
+            nodeHeight !== props.headHeight
+        ) {
+            update = true;
         }
-        const ns = nodeSize;
-        const nr = nodeRange;
-        const nh = nodeHeight;
         ({
             output: outPut,
             headSize: nodeSize,
             headRange: nodeRange,
             headHeight: nodeHeight,
         } = props);
-        if (
-            !equal(outp, outPut) ||
-            ns !== nodeSize ||
-            nr !== nodeRange ||
-            nh !== nodeHeight
-        ) {
-            update = true;
-        }
     };
 
     p.draw = () => {

@@ -115,9 +115,8 @@ export class Scanner {
             let sub: T;
             if (this.consumeStrHead()) {
                 if (this.consume("(")) {
-                    const arg = this.parse_term();
-                    if (this.consume(")")) return psi(Z,arg);
                     sub = this.parse_term();
+                    if (this.consume(")")) return psi(Z,sub);
                     this.expect(",");
                 } else {
                     this.consume("_");
@@ -132,9 +131,8 @@ export class Scanner {
                 }
             } else {
                 if (this.consume("(")) {
-                    const arg = this.parse_term();
-                    if (this.consume(")")) return psi(Z,arg);
                     sub = this.parse_term();
+                    if (this.consume(")")) return psi(Z,sub);
                     this.expect(",");
                 } else {
                     this.expect("{");

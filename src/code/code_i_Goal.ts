@@ -13,7 +13,7 @@ export class Goal_Function implements Hyouki {
         const result = dom(a);
         return ({
             term: result,
-            gamma: null,
+            gamma: Z,
         });
     }
 }
@@ -82,7 +82,7 @@ function replace(s: T, t: T): T {
 }
 
 function fundAndGamma(a: T, b: T) {
-    let bp: T | null = null;
+    let bp: T = Z;
     // x[y]
     function fund(s: T, t: T): T {
         if (s.type === "zero") {
@@ -103,7 +103,7 @@ function fundAndGamma(a: T, b: T) {
                     return psi(fund(a, t), b);
                 }
             } else if (equal(domb, ONE)) {
-                if (!bp) bp = psi(a, fund(b, Z));
+                if (bp.type === "zero") bp = psi(a, fund(b, Z));
                 if (equal(dom(t), ONE)) {
                     return plus(fund(s, fund(t, Z)), psi(a, fund(b, Z)));
                 } else {
@@ -120,7 +120,7 @@ function fundAndGamma(a: T, b: T) {
                     const e = domd.sub;
                     if (b.type === "plus") {
                         const g = b.add[b.add.length - 1].sub;
-                        if (!bp) bp = replace(find(fund(b, Z), g), fund(e, Z));
+                        if (bp.type === "zero") bp = replace(find(fund(b, Z), g), fund(e, Z));
                         if (equal(dom(t), ONE)) {
                             const p = fund(s, fund(t, Z));
                             if (p.type !== "psi") throw Error("bの型がplusのときのpの型がpsiではない");
@@ -130,7 +130,7 @@ function fundAndGamma(a: T, b: T) {
                             return psi(a, fund(b, Z));
                         }
                     } else {
-                        if (!bp) bp = replace(fund(b, Z), fund(e, Z));
+                        if (bp.type === "zero") bp = replace(fund(b, Z), fund(e, Z));
                         if (equal(dom(t), ONE)) {
                             const p = fund(s, fund(t, Z));
                             if (p.type !== "psi") throw Error("bの型がpsiのときのpの型がpsiではない");

@@ -13,7 +13,7 @@ export class Subspecies_Function implements Hyouki {
         const result = dom(a);
         return ({
             term: result,
-            gamma: null,
+            gamma: Z,
         });
     }
 }
@@ -40,7 +40,7 @@ function dom(s: T): ZT | PT {
 }
 
 function fundAndGamma(a: T, b: T) {
-    let bp: T | null = null;
+    let bp: T = Z;
     // x[y]
     function fund(s: T, t: T): T {
         if (s.type == "zero") {
@@ -61,7 +61,7 @@ function fundAndGamma(a: T, b: T) {
                     return psi(fund(a, t), b);
                 } else {
                     const c = doma.sub;
-                    if (!bp) bp = psi(fund(c, Z), fund(a, Z));
+                    if (bp.type === "zero") bp = psi(fund(c, Z), fund(a, Z));
                     if (equal(dom(t), ONE)) {
                         const p = fund(s, fund(t, Z));
                         if (p.type != "psi") throw Error("なんでだよ");
@@ -72,7 +72,7 @@ function fundAndGamma(a: T, b: T) {
                     }
                 }
             } else if (equal(domb, ONE)) {
-                if (!bp) bp = psi(a, fund(b, Z));
+                if (bp.type === "zero") bp = psi(a, fund(b, Z));
                 if (equal(dom(t), ONE)) {
                     return plus(fund(s, fund(t, Z)), psi(a, fund(b, Z)));
                 } else {
@@ -82,7 +82,7 @@ function fundAndGamma(a: T, b: T) {
                 return psi(a, fund(b, t));
             } else {
                 const c = domb.sub;
-                if (!bp) bp = psi(fund(c, Z), fund(b, Z));
+                if (bp.type === "zero") bp = psi(fund(c, Z), fund(b, Z));
                 if (equal(dom(t), ONE)) {
                     const p = fund(s, fund(t, Z));
                     if (p.type != "psi") throw Error("なんでだよ");

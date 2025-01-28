@@ -13,7 +13,7 @@ export class Stomach_Function implements Hyouki {
         const result = dom(a);
         return ({
             term: result,
-            gamma: null,
+            gamma: Z,
         });
     }
 }
@@ -46,7 +46,7 @@ function dom(s: T): ZT | PT {
 }
 
 function fundAndGamma(a: T, b: T) {
-    let bp: T | null = null;
+    let bp: T = Z;
     // x[y]
     function fund(s: T, t: T): T {
         if (s.type === "zero") {
@@ -69,7 +69,7 @@ function fundAndGamma(a: T, b: T) {
                     const domd = dom(doma.arg);
                     if (domd.type === "zero") {
                         const c = doma.sub;
-                        if (!bp) bp = psi(fund(c, Z), fund(a, Z));
+                        if (bp.type === "zero") bp = psi(fund(c, Z), fund(a, Z));
                         if (equal(dom(t), ONE)) {
                             const p = fund(s, fund(t, Z));
                             if (p.type !== "psi") throw Error("なんでだよ");
@@ -80,7 +80,7 @@ function fundAndGamma(a: T, b: T) {
                         }
                     } else {
                         const e = domd.sub;
-                        if (!bp) bp = psi(fund(e, Z), fund(a, Z));
+                        if (bp.type === "zero") bp = psi(fund(e, Z), fund(a, Z));
                         if (equal(dom(t), ONE)) {
                             const p = fund(s, fund(t, Z));
                             if (p.type !== "psi") throw Error("なんでだよ");
@@ -92,7 +92,7 @@ function fundAndGamma(a: T, b: T) {
                     }
                 }
             } else if (equal(domb, ONE)) {
-                if (!bp) bp = psi(a, fund(b, Z));
+                if (bp.type === "zero") bp = psi(a, fund(b, Z));
                 if (equal(dom(t), ONE)) {
                     return plus(fund(s, fund(t, Z)), psi(a, fund(b, Z)));
                 } else {
@@ -105,7 +105,7 @@ function fundAndGamma(a: T, b: T) {
                 if (domd.type === "zero") {
                     if (less_than(s, domb)) {
                         const c = domb.sub;
-                        if (!bp) bp = psi(fund(c, Z), fund(b, Z));
+                        if (bp.type === "zero") bp = psi(fund(c, Z), fund(b, Z));
                         if (equal(dom(t), ONE)) {
                             const c = domb.sub;
                             const p = fund(s, fund(t, Z));
@@ -119,7 +119,7 @@ function fundAndGamma(a: T, b: T) {
                     return psi(a, fund(b, t));
                 } else {
                     const e = domd.sub;
-                    if (!bp) bp = psi(fund(e, Z), fund(b, Z));
+                    if (bp.type === "zero") bp = psi(fund(e, Z), fund(b, Z));
                     if (equal(dom(t), ONE)) {
                         const p = fund(s, fund(t, Z));
                         if (p.type !== "psi") throw Error("なんでだよ");
